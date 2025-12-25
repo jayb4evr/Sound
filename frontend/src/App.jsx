@@ -71,9 +71,18 @@ function App() {
       dataArrayRef.current = new Uint8Array(bufferLength);
       
       // Setup MediaRecorder for sending audio data
-      const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
+      // Check for browser support and use appropriate MIME type
+      let options = { mimeType: 'audio/webm;codecs=opus' };
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'audio/webm' };
+      }
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'audio/mp4' };
+      }
+      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = {};
+      }
+      const mediaRecorder = new MediaRecorder(stream, options);
       
       mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0 && wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -171,9 +180,22 @@ function App() {
   // Start recording handler
   const handleStart = () => {
     connectWebSocket();
+    // Wait for WebSocket to connect before initializing audio
+    const checkConnection = setInterval(() => {
+      if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+        clearInterval(checkConnection);
+        initAudioContext();
+      }
+    }, 100);
+    
+    // Fallback timeout after 5 seconds
     setTimeout(() => {
-      initAudioContext();
-    }, 500); // Give WebSocket time to connect
+      clearInterval(checkConnection);
+      if (wsRef.current && wsRef.current.readyState !== WebSocket.OPEN) {
+        setError('WebSocket connection timeout. Starting without transcription.');
+        initAudioContext();
+      }
+    }, 5000);
   };
 
   // Stop recording handler
@@ -204,6 +226,9 @@ function App() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }

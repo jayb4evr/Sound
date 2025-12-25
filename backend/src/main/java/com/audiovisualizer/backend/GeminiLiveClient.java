@@ -1,5 +1,7 @@
 package com.audiovisualizer.backend;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,6 +24,8 @@ import java.util.Map;
 public class GeminiLiveClient {
 
     private static final Logger logger = LoggerFactory.getLogger(GeminiLiveClient.class);
+    
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${app.gemini.api-key}")
     private String apiKey;
@@ -105,12 +109,26 @@ public class GeminiLiveClient {
      */
     private String parseTranscriptFromResponse(String response) {
         try {
-            // Basic parsing - in production, use proper JSON parser
-            if (response.contains("\"text\"")) {
-                int start = response.indexOf("\"text\"") + 8;
-                int end = response.indexOf("\"", start);
-                if (end > start) {
-                    return response.substring(start, end) + " ";
+            // Use Jackson ObjectMapper for robust JSON parsing
+            JsonNode rootNode = objectMapper.readTree(response);
+            
+            // Navigate JSON structure to extract text
+            if (rootNode.has("candidates")) {
+                JsonNode candidates = rootNode.get("candidates");
+                if (candidates.isArray() && candidates.size() > 0) {
+                    JsonNode firstCandidate = candidates.get(0);
+                    if (firstCandidate.has("content")) {
+                        JsonNode content = firstCandidate.get("content");
+                        if (content.has("parts")) {
+                            JsonNode parts = content.get("parts");
+                            if (parts.isArray() && parts.size() > 0) {
+                                JsonNode firstPart = parts.get(0);
+                                if (firstPart.has("text")) {
+                                    return firstPart.get("text").asText() + " ";
+                                }
+                            }
+                        }
+                    }
                 }
             }
             return "";
@@ -141,7 +159,7 @@ public class GeminiLiveClient {
 
         return Flux.range(0, simulatedPhrases.length)
             .delayElements(Duration.ofMillis(500))
-            .map(i -> simulatedPhrases[i % simulatedPhrases.length])
+            .map(i -> simulatedPhrases[i])
             .take(3); // Return first 3 phrases per chunk
     }
 
