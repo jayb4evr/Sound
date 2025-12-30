@@ -26,6 +26,8 @@ cd frontend
 npm run dev
 ```
 
+> **Note:** If dependencies are out of date or you encounter errors, re-run the setup scripts or manually run `npm install` (frontend) and `mvn clean install` (backend).
+
 Open http://localhost:5173 in your browser.
 
 **Need help?** See [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) for detailed instructions and troubleshooting.
