@@ -55,7 +55,9 @@ Open http://localhost:5173 in your browser.
 
 ## 📖 Documentation
 
-- [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) - How to run the application
+- [GETTING_STARTED.md](./GETTING_STARTED.md) - **Start here!** Complete setup guide for first-time users
+- [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) - Quick command reference and common tasks
+- [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) - Detailed running instructions and troubleshooting
 - [SUBMISSION.md](./SUBMISSION.md) - Complete project summary
 - [UI_UX_AUDIT.md](./UI_UX_AUDIT.md) - EdTech platform improvements
 - [DEMO_SCRIPT.md](./DEMO_SCRIPT.md) - Video demonstration guide
