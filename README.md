@@ -14,6 +14,8 @@
 
 ### Already Set Up?
 
+**Dependencies already installed?** Just start the servers:
+
 ```bash
 # Terminal 1: Start Backend
 cd backend

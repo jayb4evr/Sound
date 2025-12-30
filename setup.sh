@@ -86,6 +86,11 @@ echo ""
 
 # Setup backend
 echo "Setting up backend..."
+if [ ! -d "backend" ]; then
+    print_error "backend directory not found"
+    echo "  Make sure you're running this script from the project root directory"
+    exit 1
+fi
 cd backend
 print_info "Running: mvn clean install"
 if mvn clean install -DskipTests; then
@@ -100,6 +105,11 @@ echo ""
 
 # Setup frontend
 echo "Setting up frontend..."
+if [ ! -d "frontend" ]; then
+    print_error "frontend directory not found"
+    echo "  Make sure you're running this script from the project root directory"
+    exit 1
+fi
 cd frontend
 print_info "Running: npm install"
 if npm install; then

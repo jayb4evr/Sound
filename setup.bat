@@ -57,6 +57,11 @@ echo.
 
 REM Setup backend
 echo Setting up backend...
+if not exist "backend" (
+    echo [X] backend directory not found
+    echo     Make sure you're running this script from the project root directory
+    exit /b 1
+)
 cd backend
 echo Running: mvn clean install
 call mvn clean install -DskipTests
@@ -72,6 +77,11 @@ echo.
 
 REM Setup frontend
 echo Setting up frontend...
+if not exist "frontend" (
+    echo [X] frontend directory not found
+    echo     Make sure you're running this script from the project root directory
+    exit /b 1
+)
 cd frontend
 echo Running: npm install
 call npm install
