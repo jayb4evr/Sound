@@ -4,7 +4,17 @@
 
 ## 🚀 Quick Start
 
-See [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) for detailed setup instructions.
+### First Time Setup
+
+**New to this project? Start here:**
+1. **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Complete initialization guide for first-time setup
+2. Run automated setup:
+   - **Unix/Linux/macOS**: `./setup.sh`
+   - **Windows**: `setup.bat`
+
+### Already Set Up?
+
+**Dependencies already installed?** Just start the servers:
 
 ```bash
 # Terminal 1: Start Backend
@@ -13,11 +23,14 @@ mvn spring-boot:run
 
 # Terminal 2: Start Frontend
 cd frontend
-npm install
 npm run dev
 ```
 
+> **Note:** If dependencies are out of date or you encounter errors, re-run the setup scripts or manually run `npm install` (frontend) and `mvn clean install` (backend).
+
 Open http://localhost:5173 in your browser.
+
+**Need help?** See [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) for detailed instructions and troubleshooting.
 
 ## 📁 Project Structure
 
@@ -46,7 +59,9 @@ Open http://localhost:5173 in your browser.
 
 ## 📖 Documentation
 
-- [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) - How to run the application
+- [GETTING_STARTED.md](./GETTING_STARTED.md) - **Start here!** Complete setup guide for first-time users
+- [QUICK_REFERENCE.md](./QUICK_REFERENCE.md) - Quick command reference and common tasks
+- [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) - Detailed running instructions and troubleshooting
 - [SUBMISSION.md](./SUBMISSION.md) - Complete project summary
 - [UI_UX_AUDIT.md](./UI_UX_AUDIT.md) - EdTech platform improvements
 - [DEMO_SCRIPT.md](./DEMO_SCRIPT.md) - Video demonstration guide
