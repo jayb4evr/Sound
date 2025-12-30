@@ -4,7 +4,15 @@
 
 ## 🚀 Quick Start
 
-See [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) for detailed setup instructions.
+### First Time Setup
+
+**New to this project? Start here:**
+1. **[GETTING_STARTED.md](./GETTING_STARTED.md)** - Complete initialization guide for first-time setup
+2. Run automated setup:
+   - **Unix/Linux/macOS**: `./setup.sh`
+   - **Windows**: `setup.bat`
+
+### Already Set Up?
 
 ```bash
 # Terminal 1: Start Backend
@@ -13,11 +21,12 @@ mvn spring-boot:run
 
 # Terminal 2: Start Frontend
 cd frontend
-npm install
 npm run dev
 ```
 
 Open http://localhost:5173 in your browser.
+
+**Need help?** See [RUN_INSTRUCTIONS.md](./RUN_INSTRUCTIONS.md) for detailed instructions and troubleshooting.
 
 ## 📁 Project Structure
 
