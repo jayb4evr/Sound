@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react';
 
 interface CircularEqualizerProps {
-  frequencyData: Uint8Array | null;
+  analyserNode: AnalyserNode | null;
+  frequencyDataRef: React.RefObject<Uint8Array | null>;
   isRecording: boolean;
 }
 
@@ -9,7 +10,7 @@ interface CircularEqualizerProps {
  * Circular equalizer rendering 64 frequency bars on Canvas at 60 FPS
  * Optimized rendering using refs to avoid unnecessary re-renders
  */
-export function CircularEqualizer({ frequencyData, isRecording }: CircularEqualizerProps) {
+export function CircularEqualizer({ analyserNode, frequencyDataRef, isRecording }: CircularEqualizerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameRef = useRef<number | null>(null);
 
@@ -33,7 +34,12 @@ export function CircularEqualizer({ frequencyData, isRecording }: CircularEquali
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      if (frequencyData && isRecording) {
+      if (analyserNode && frequencyDataRef.current && isRecording) {
+        // Get fresh frequency data directly from analyser (no extra allocations)
+        // Type assertion needed due to Web Audio API TypeScript definitions
+        analyserNode.getByteFrequencyData(frequencyDataRef.current as Uint8Array<ArrayBuffer>);
+        const frequencyData = frequencyDataRef.current;
+
         // Draw circular visualizer
         for (let i = 0; i < barCount; i++) {
           const angle = (i / barCount) * Math.PI * 2 - Math.PI / 2; // Start from top
@@ -108,7 +114,7 @@ export function CircularEqualizer({ frequencyData, isRecording }: CircularEquali
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [frequencyData, isRecording]);
+  }, [analyserNode, frequencyDataRef, isRecording]);
 
   return (
     <div className="flex flex-col items-center gap-6">

@@ -6,7 +6,7 @@ import { Controls } from './components/Controls';
 
 function App() {
   const { isConnected, sendAudioChunk, transcript, clearTranscript, error: wsError } = useWebSocket();
-  const { frequencyData, isRecording, error: audioError, startRecording, stopRecording } = useAudioAnalyzer();
+  const { analyserNode, frequencyDataRef, isRecording, error: audioError, startRecording, stopRecording } = useAudioAnalyzer();
 
   const handleStart = async () => {
     try {
@@ -37,7 +37,7 @@ function App() {
       {/* Main Content */}
       <main className="flex flex-col items-center gap-8 px-4 pb-12">
         {/* Visualizer */}
-        <CircularEqualizer frequencyData={frequencyData} isRecording={isRecording} />
+        <CircularEqualizer analyserNode={analyserNode} frequencyDataRef={frequencyDataRef} isRecording={isRecording} />
 
         {/* Controls */}
         <Controls

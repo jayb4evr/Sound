@@ -18,9 +18,6 @@ export function setupTranscriptionHandler(
   transcriptionNamespace.on('connection', (socket: Socket) => {
     console.log(`🔌 Client connected to /transcription: ${socket.id}`);
 
-    // Create a new session for this socket
-    geminiClient.resetSession();
-
     // Handle incoming audio chunks
     socket.on('audio-chunk', async (chunk: AudioChunkData) => {
       try {

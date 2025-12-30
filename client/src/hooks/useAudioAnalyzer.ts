@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 
 export interface UseAudioAnalyzerReturn {
-  frequencyData: Uint8Array | null;
+  analyserNode: AnalyserNode | null;
+  frequencyDataRef: React.RefObject<Uint8Array | null>;
   isRecording: boolean;
   error: string | null;
   startRecording: (onAudioChunk: (data: ArrayBuffer) => void) => Promise<void>;
@@ -18,9 +19,7 @@ export function useAudioAnalyzer(): UseAudioAnalyzerReturn {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const frequencyDataRef = useRef<Uint8Array | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
   
-  const [frequencyData, setFrequencyData] = useState<Uint8Array | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,7 +56,6 @@ export function useAudioAnalyzer(): UseAudioAnalyzerReturn {
       // Initialize frequency data array (reused to avoid GC pressure)
       const bufferLength = analyser.frequencyBinCount;
       frequencyDataRef.current = new Uint8Array(bufferLength);
-      setFrequencyData(frequencyDataRef.current);
 
       // Setup MediaRecorder for sending audio data
       let options: MediaRecorderOptions = { mimeType: 'audio/webm;codecs=opus' };
@@ -102,11 +100,6 @@ export function useAudioAnalyzer(): UseAudioAnalyzerReturn {
       setIsRecording(false);
     }
 
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-      animationFrameRef.current = null;
-    }
-
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach(track => track.stop());
       mediaStreamRef.current = null;
@@ -120,28 +113,6 @@ export function useAudioAnalyzer(): UseAudioAnalyzerReturn {
     console.log('⏹ Audio recording stopped');
   };
 
-  // Update frequency data continuously for visualizer
-  useEffect(() => {
-    if (isRecording && analyserRef.current && frequencyDataRef.current) {
-      const updateFrequencyData = () => {
-        if (analyserRef.current && frequencyDataRef.current) {
-          // Reuse Uint8Array to avoid allocations at 60 FPS
-          // @ts-ignore - Web Audio API type compatibility
-          analyserRef.current.getByteFrequencyData(frequencyDataRef.current);
-          setFrequencyData(new Uint8Array(frequencyDataRef.current.buffer));
-          animationFrameRef.current = requestAnimationFrame(updateFrequencyData);
-        }
-      };
-      updateFrequencyData();
-    }
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isRecording]);
-
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -150,7 +121,8 @@ export function useAudioAnalyzer(): UseAudioAnalyzerReturn {
   }, []);
 
   return {
-    frequencyData,
+    analyserNode: analyserRef.current,
+    frequencyDataRef,
     isRecording,
     error,
     startRecording,
