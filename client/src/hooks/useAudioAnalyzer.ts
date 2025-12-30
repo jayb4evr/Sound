@@ -19,6 +19,9 @@ export function useAudioAnalyzer(isActive: boolean) {
   const [error, setError] = useState<string>('');
   const animationFrameRef = useRef<number | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const frequencyDataRef = useRef<Uint8Array | null>(null);
 
   const startAnalyzer = useCallback(async () => {
     try {
@@ -37,11 +40,13 @@ export function useAudioAnalyzer(isActive: boolean) {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)({
         sampleRate: 16000
       });
+      audioContextRef.current = audioContext;
 
       // Create Analyser Node
       const analyser = audioContext.createAnalyser();
       analyser.fftSize = 128; // 64 frequency bins (32-64 bars for circular visualizer)
       analyser.smoothingTimeConstant = 0.8; // Smooth animations
+      analyserRef.current = analyser;
 
       // Connect microphone to analyser
       const source = audioContext.createMediaStreamSource(stream);
@@ -50,6 +55,7 @@ export function useAudioAnalyzer(isActive: boolean) {
       // Initialize frequency data array
       const bufferLength = analyser.frequencyBinCount;
       const frequencyData = new Uint8Array(bufferLength);
+      frequencyDataRef.current = frequencyData;
 
       setAudioData({
         frequencyData,
@@ -72,8 +78,9 @@ export function useAudioAnalyzer(isActive: boolean) {
     }
 
     // Close audio context
-    if (audioData.audioContext) {
-      audioData.audioContext.close();
+    if (audioContextRef.current) {
+      audioContextRef.current.close();
+      audioContextRef.current = null;
     }
 
     // Stop media stream
@@ -82,36 +89,40 @@ export function useAudioAnalyzer(isActive: boolean) {
       streamRef.current = null;
     }
 
+    analyserRef.current = null;
+    frequencyDataRef.current = null;
+
     setAudioData({
       frequencyData: null,
       analyser: null,
       audioContext: null
     });
-  }, [audioData.audioContext]);
+  }, []);
 
   // Update frequency data at 60fps
   const updateFrequencyData = useCallback(() => {
-    if (audioData.analyser && audioData.frequencyData) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      audioData.analyser.getByteFrequencyData(audioData.frequencyData as any);
+    if (analyserRef.current && frequencyDataRef.current) {
+      // Type assertion needed due to TypeScript library definitions
+      analyserRef.current.getByteFrequencyData(frequencyDataRef.current as Uint8Array<ArrayBuffer>);
+      // Trigger re-render by creating new Uint8Array reference only when needed
       setAudioData(prev => ({
         ...prev,
-        frequencyData: new Uint8Array(audioData.frequencyData!)
+        frequencyData: frequencyDataRef.current
       }));
     }
     animationFrameRef.current = requestAnimationFrame(updateFrequencyData);
-  }, [audioData.analyser, audioData.frequencyData]);
+  }, []);
 
   useEffect(() => {
-    if (isActive && !audioData.audioContext) {
+    if (isActive && !audioContextRef.current) {
       startAnalyzer();
-    } else if (!isActive && audioData.audioContext) {
+    } else if (!isActive && audioContextRef.current) {
       stopAnalyzer();
     }
-  }, [isActive, audioData.audioContext, startAnalyzer, stopAnalyzer]);
+  }, [isActive, startAnalyzer, stopAnalyzer]);
 
   useEffect(() => {
-    if (audioData.analyser && audioData.frequencyData) {
+    if (analyserRef.current && frequencyDataRef.current) {
       updateFrequencyData();
     }
 
@@ -120,7 +131,7 @@ export function useAudioAnalyzer(isActive: boolean) {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [audioData.analyser, audioData.frequencyData, updateFrequencyData]);
+  }, [updateFrequencyData]);
 
   return { 
     ...audioData, 
