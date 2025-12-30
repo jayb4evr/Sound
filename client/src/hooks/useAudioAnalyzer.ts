@@ -61,13 +61,13 @@ export function useAudioAnalyzer(): UseAudioAnalyzerReturn {
 
       // Setup MediaRecorder for sending audio data
       let options: MediaRecorderOptions = { mimeType: 'audio/webm;codecs=opus' };
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      if (options.mimeType && !MediaRecorder.isTypeSupported(options.mimeType)) {
         options = { mimeType: 'audio/webm' };
       }
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      if (options.mimeType && !MediaRecorder.isTypeSupported(options.mimeType)) {
         options = { mimeType: 'audio/mp4' };
       }
-      if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+      if (options.mimeType && !MediaRecorder.isTypeSupported(options.mimeType)) {
         options = {};
       }
 
@@ -126,8 +126,9 @@ export function useAudioAnalyzer(): UseAudioAnalyzerReturn {
       const updateFrequencyData = () => {
         if (analyserRef.current && frequencyDataRef.current) {
           // Reuse Uint8Array to avoid allocations at 60 FPS
+          // @ts-ignore - Web Audio API type compatibility
           analyserRef.current.getByteFrequencyData(frequencyDataRef.current);
-          setFrequencyData(new Uint8Array(frequencyDataRef.current));
+          setFrequencyData(new Uint8Array(frequencyDataRef.current.buffer));
           animationFrameRef.current = requestAnimationFrame(updateFrequencyData);
         }
       };

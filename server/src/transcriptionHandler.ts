@@ -1,5 +1,5 @@
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { GeminiClient, AudioChunk } from './geminiClient.js';
+import { GeminiClient } from './geminiClient.js';
 
 export interface AudioChunkData {
   data: ArrayBuffer;
