@@ -92,7 +92,8 @@ export function useAudioAnalyzer(isActive: boolean) {
   // Update frequency data at 60fps
   const updateFrequencyData = useCallback(() => {
     if (audioData.analyser && audioData.frequencyData) {
-      audioData.analyser.getByteFrequencyData(audioData.frequencyData);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      audioData.analyser.getByteFrequencyData(audioData.frequencyData as any);
       setAudioData(prev => ({
         ...prev,
         frequencyData: new Uint8Array(audioData.frequencyData!)
