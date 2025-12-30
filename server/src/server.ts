@@ -24,7 +24,15 @@ const app = express();
 
 // Security middleware
 app.use(helmet({
-  contentSecurityPolicy: false, // Allow WebSocket connections
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", CLIENT_URL, "ws:", "wss:"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
+      imgSrc: ["'self'", "data:"],
+    },
+  },
 }));
 
 // CORS configuration
