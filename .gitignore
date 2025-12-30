@@ -46,7 +46,6 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
-*.env
 
 # Logs
 logs/
@@ -65,8 +64,7 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
-*.cache
-.cache/
+.cache
 
 # Application specific
 application-local.properties
